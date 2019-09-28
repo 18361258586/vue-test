@@ -3,18 +3,51 @@
     <div class="loginBox">
       <strong>登陆</strong>
       <p>
-        账号：<input type="text" placeholder="请输入账号">
+        账号：<input type="text" v-model='name' placeholder="请输入账号">
       </p>
       <p> 
-        密码：<input type="password" placeholder="请输入密码">
+        密码：<input type="password" v-model='pass' placeholder="请输入密码">
       </p>
-      <button>登陆</button>
+      <button @click="login">登陆</button>
       <div class="line"> 
         WELCOME ！
       </div>
     </div>
   </div>
 </template>
+
+<script lang="ts">
+import { Component, Vue, Watch } from "vue-property-decorator";
+import axios from '@/utils/request.ts';
+
+@Component({})
+export default class extends Vue {
+    
+    private name = ''  
+    private pass = ''
+
+    login(){
+        axios.post("api/login",{
+          username:this.name,
+          password:this.pass
+        }).then(res => {
+          // console.log(res)
+          if(res.code == '200'){
+            // this.data = res.data;
+            localStorage.setItem("token",res.data.token);
+            this.$router.push("/home");
+          }else{
+            this.$message({
+              showClose: true,
+              message: '账号或密码不正确',
+              type: 'error'
+            });
+          }
+        })
+    }
+
+}
+</script>
 
 <style lang="scss" scoped>
 .login{

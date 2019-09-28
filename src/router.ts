@@ -4,7 +4,7 @@ import Home from './views/Home.vue';
 
 Vue.use(Router);
 
-export default new Router({
+let router = new Router({
   // mode: 'history',
   // base: process.env.BASE_URL,
   routes: [
@@ -43,3 +43,21 @@ export default new Router({
     },
   ],
 });
+
+// 全局路由守卫
+router.beforeEach((to, from, next) => {
+  
+  let xtoken = localStorage.getItem("token")
+  if(xtoken){
+      next();
+  }else if(to.path != '/login'){
+      next({ path: '/login',replace: true })
+  }else{
+      next()
+  }
+  
+});
+
+
+
+export default router;

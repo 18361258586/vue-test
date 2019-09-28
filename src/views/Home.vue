@@ -1,10 +1,10 @@
 <template>
   <div class="home">
     <!-- 头部按钮 -->
-    <!-- <div class="homeTop">
-      <button>开始采集</button>
-      <button>结束采集</button>
-    </div> -->
+    <div class="homeTop">
+      <button @click='changeState' v-if="state == 1">开始采集</button>
+      <button @click='changeState' v-if="state == 0" class='redButton'>结束采集</button>
+    </div>
     
     <!-- 内容列表 -->
     <div class="homeContent">
@@ -17,13 +17,14 @@
         <span>关注</span>
       </p>
       <ul>
-        <li v-for="item in data" :key="item.id">
+        <li v-for="item in data" :key="item.id" :class="{fontRed:item.zhiding == 2}">
           <span>{{item.startTime}}</span>
           <span>{{item.gameId}}</span>
           <span>{{item.gameName}}</span>
           <span>{{item.status}}</span>
           <span>{{item.statusSun}}</span>
-          <span>关注</span>
+          <span v-if="item.zhiding == 1" @click="follow(item.id)">关注</span>
+          <span v-if="item.zhiding == 2" @click="followCancle(item.id)">取消关注</span>
         </li>
       </ul>
     </div>
@@ -54,16 +55,20 @@ export default class extends Vue {
       axios.post("api/status").then(res => {
         // console.log(res)
         if(res.code == '200'){
-          if(res.data.statusId == 0){
+          this.state = res.data.statusId
+          if(res.data.statusId == '1' && res.data.status == 'false'){
+            this.init()
+            this.state = 1
+          }else{
+            this.state = 0
+            this.init()
             setInterval(()=>{
               this.init()
             },1500)
-          }else{
-            this.init()
           }
         }
       })
-      
+      // this.init()
     }
 
     init(){
@@ -77,12 +82,99 @@ export default class extends Vue {
         // console.log("111")
     }
 
+
+    changeState(){
+      if(this.state == 1){
+        // 开始采集
+        axios.post("/api/collection",{
+          state:this.state
+        }).then(res => {
+          if(res.code == '200'){
+            this.state = 0;
+            this.$message({
+              showClose: true,
+              message: '启动成功',
+              type: 'success'
+            });
+          }else{
+            this.$message({
+              showClose: true,
+              message: '启动失败',
+              type: 'error'
+            });
+          }
+        })
+      }else{
+        //结束采集
+        axios.post("/api/collection",{
+          state:this.state
+        }).then(res => {
+          if(res.code == '200'){
+            this.state = 1;
+            this.$message({
+              showClose: true,
+              message: '关闭成功',
+              type: 'success'
+            });
+          }else{
+            this.$message({
+              showClose: true,
+              message: '关闭失败',
+              type: 'error'
+            });
+          }
+        })
+      }
+    }
+
+        follow(id){
+      axios.post("/api/follow",{
+        id:id
+      }).then(res => {
+        // console.log(res)
+        if(res.code == '200'){
+          this.init();
+          this.$message({
+              showClose: true,
+              message: '关注成功',
+              type: 'success'
+          });
+        }else{
+          this.$message({
+              showClose: true,
+              message: '关注失败',
+              type: 'error'
+          });
+        }
+      })
+    }
+
+    followCancle(id){
+      axios.post("/api/followCancle",{
+        id:id
+      }).then(res => {
+        if(res.code == '200'){
+          this.init();
+          this.$message({
+              showClose: true,
+              message: '取消成功',
+              type: 'success'
+          });
+        }else{
+          this.$message({
+              showClose: true,
+              message: '取消失败',
+              type: 'error'
+          });
+        }
+      })
+    }
 }
 </script>
 
 <style lang="scss" scoped>
 .homeTop{
-  padding: 22px;
+  padding: 22px 60px;
   height: 42px;
   button{
     width: 175px;
@@ -95,10 +187,11 @@ export default class extends Vue {
     color: white;
     background-color: rgb(0, 108, 255);
     border-radius: 5px;
+    cursor:pointer;
   }
-  button:last-child{
+  .redButton{
     background-color: rgb(157, 21, 26);
-    margin-right: 35px;
+    // margin-right: 35px;
   }
 }
 .homeContent{
@@ -106,6 +199,9 @@ export default class extends Vue {
   span{
     display: inline-block;
     width: calc(100% / 6);
+  }
+  span:last-child{
+    cursor:pointer;
   }
   p{
     line-height: 70px;
@@ -120,10 +216,10 @@ export default class extends Vue {
       line-height: 60px;
       color: #000;
       border-bottom: 1px solid #ccc;
-      // span:nth-of-type(1){
-      //   width: calc(100% / 6);
-      // }
     }
   }
 }
+  .fontRed{
+    color:red !important;
+  }
 </style>

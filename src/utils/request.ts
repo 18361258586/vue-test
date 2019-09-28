@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from '@/router'
 
 class Http {
   private service: any = null
@@ -6,7 +7,7 @@ class Http {
 
     this.service = axios.create({
       baseURL: 'http://139.196.137.208:3000/',
-      // baseURL: 'http://localhost:3001/',
+      // baseURL: 'http://localhost:3000/',
       timeout: 5000000
     })
 
@@ -14,13 +15,8 @@ class Http {
     this.service.interceptors.request.use(function (config) {
         // 发送请求之前
         // 确认每个接口默认token
-    //   config.headers['XToken'] = localStorage.getItem('Promising_token')
-    //   if (config.data) {
-    //     config.data.user_id = localStorage.getItem('Promising_user_id')
-    //   } else if (config.params) {
-    //     config.params.user_id = localStorage.getItem('Promising_user_id')
-    //   }
-
+      config.headers['authorization'] = localStorage.getItem('token')
+      
       return config
     }, function (error) {
       // 请求错误
@@ -30,11 +26,11 @@ class Http {
         // 添加响应拦截器
     this.service.interceptors.response.use((response) => {
         // 响应数据
-        // 如果code码为404，则是登陆过期,405 非法请求  ， 406 票据缺失
-      if (response.data.code === '404' || response.data.code === '405' || response.data.code === '406') {
+        // 如果code码为404，则是登陆过期
+      if (response.data.code === '404') {
         // 进行重新登陆
-        localStorage.removeItem('Promising_token')
-            // RouterJump.$router.replace({ path: '/' });
+        localStorage.removeItem('token')
+        router.replace({ path: '/login' });
       } else {
         return response.data
       }
@@ -43,10 +39,10 @@ class Http {
       return Promise.reject(error)
     })
   }
-  public get (url, params = {}) {
+  public get (url:any, params = {}) {
     return this.service.get(`${url}`, { params })
   }
-  public post (url, data = {}, config = {}) {
+  public post (url:any, data = {}, config = {}) {
     return this.service.post(`${url}`, data, config)
   }
 }
