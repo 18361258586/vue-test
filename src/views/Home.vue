@@ -46,6 +46,7 @@ export default class extends Vue {
     private state = 1 // 状态
     private List = null  // 列表
     private data = []
+    private timer = null
 
     created(){
 
@@ -62,7 +63,7 @@ export default class extends Vue {
           }else{
             this.state = 0
             this.init()
-            setInterval(()=>{
+            this.timer = setInterval(()=>{
               this.init()
             },1500)
           }
@@ -91,6 +92,9 @@ export default class extends Vue {
         }).then(res => {
           if(res.code == '200'){
             this.state = 0;
+            this.timer = setInterval(()=>{
+              this.init()
+            },1500)
             this.$message({
               showClose: true,
               message: '启动成功',
@@ -111,6 +115,7 @@ export default class extends Vue {
         }).then(res => {
           if(res.code == '200'){
             this.state = 1;
+            clearInterval(this.timer)
             this.$message({
               showClose: true,
               message: '关闭成功',
