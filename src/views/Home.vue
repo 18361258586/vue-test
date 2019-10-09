@@ -14,6 +14,7 @@
         <span>游戏名</span>
         <span>押注</span>
         <span>下注金额</span>
+        <span>总金额</span>
         <span>关注</span>
       </p>
       <ul>
@@ -23,6 +24,7 @@
           <span>{{item.gameName}}</span>
           <span>{{item.status}}</span>
           <span>{{item.statusSun}}</span>
+          <span>{{item.zongshu}}</span>
           <span v-if="item.zhiding == 1" @click="follow(item.id)">关注</span>
           <span v-if="item.zhiding == 2" @click="followCancle(item.id)">取消关注</span>
         </li>
@@ -47,12 +49,14 @@ export default class extends Vue {
     private List = null  // 列表
     private data = []
     private timer = null
+    private timerEned = null
 
     created(){
-
+      
     }
 
     mounted () {
+
       axios.post("api/status").then(res => {
         // console.log(res)
         if(res.code == '200'){
@@ -66,9 +70,31 @@ export default class extends Vue {
             this.timer = setInterval(()=>{
               this.init()
             },1500)
+
+            this.timerEned = setInterval(()=>{
+                axios.post("api/status").then(res => {
+                // console.log(res)
+                if(res.code == '200'){
+                  this.playSound()
+                  this.state = res.data.statusId
+                  if(res.data.statusId == '1' && res.data.status == 'false'){
+                    // 未开始采集
+                    this.state = 1;
+                    clearInterval(this.timer)
+                    clearInterval(this.timerEned)
+                    this.$message({
+                      showClose: true,
+                      message: '窗口异常关闭',
+                      type: 'error'
+                    });
+                  }
+                }
+              })
+            },5000)
           }
         }
       })
+
       // this.init()
     }
 
@@ -132,7 +158,7 @@ export default class extends Vue {
       }
     }
 
-        follow(id){
+    follow(id){
       axios.post("/api/follow",{
         id:id
       }).then(res => {
@@ -174,6 +200,32 @@ export default class extends Vue {
         }
       })
     }
+
+    playSound(){
+      var borswer = window.navigator.userAgent.toLowerCase();
+      if ( borswer.indexOf( "ie" ) >= 0 )
+      {
+        //IE内核浏览器
+        var strEmbed = '<embed name="embedPlay" src="https://img.tukuppt.com/newpreview_music/08/99/16/5c88e76d71b5711967.mp3" autostart="true" hidden="true" loop="false"></embed>';
+        if ( $( "body" ).find( "embed" ).length <= 0 )
+          $( "body" ).append( strEmbed );
+        var embed = document.embedPlay;
+
+        //浏览器不支持 audion，则使用 embed 播放
+        embed.volume = 100;
+        embed.play();
+      } else
+      {
+        //非IE内核浏览器
+        var strAudio = "<audio id='audioPlay' src='https://img.tukuppt.com/newpreview_music/08/99/16/5c88e76d71b5711967.mp3' hidden='true'>";
+        if ( $( "body" ).find( "audio" ).length <= 0 )
+          $( "body" ).append( strAudio );
+        var audio = document.getElementById( "audioPlay" );
+
+        //浏览器支持 audion
+        audio.play();
+      }
+    }
 }
 </script>
 
@@ -203,7 +255,7 @@ export default class extends Vue {
   padding: 0 60px 0 30px;
   span{
     display: inline-block;
-    width: calc(100% / 6);
+    width: calc(100% / 7);
   }
   span:last-child{
     cursor:pointer;

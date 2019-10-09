@@ -16,6 +16,7 @@
         <span>游戏名</span>
         <span>押注</span>
         <span>下注金额</span>
+        <span>总金额</span>
         <span>关注</span>
       </p>
       <ul>
@@ -25,6 +26,7 @@
           <span>{{item.gameName}}</span>
           <span>{{item.status}}</span>
           <span>{{item.statusSun}}</span>
+          <span>{{item.zongshu}}</span>
           <span v-if="item.zhiding == 1" @click="follow(item.id)">关注</span>
           <span v-if="item.zhiding == 2" @click="followCancle(item.id)">取消关注</span>
         </li>
@@ -196,7 +198,7 @@ export default class extends Vue {
     padding: 0 60px 0 30px;
     span{
       display: inline-block;
-      width: calc(100% / 6);
+      width: calc(100% / 7);
     }
     span:last-child{
       cursor: pointer;

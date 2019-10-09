@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <h2>数据采集中</h2>
+    <h2>数据采集</h2>
     <div class="appBox">
       <div id="nav">
         <router-link :class="{fontRed:$route.path=='/home'}" to="/">数据采集</router-link> 
@@ -39,7 +39,9 @@
     }
     .content{
       width: calc(100% - 160px);
-      min-height: calc(100vh - 70px);
+      height: calc(100vh - 70px);
+      overflow:auto;
+      // min-height: calc(100vh - 70px);
       background: #f9f9f9;
     }
   }

@@ -6,8 +6,8 @@ class Http {
   constructor () {
 
     this.service = axios.create({
-      baseURL: 'http://139.196.137.208:3000/',
-      // baseURL: 'http://localhost:3000/',
+      // baseURL: 'http://139.196.137.208:3000/',
+      baseURL: 'http://localhost:3000/',
       timeout: 5000000
     })
 
