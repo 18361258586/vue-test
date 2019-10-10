@@ -2,6 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import './utils/request.ts'
+import './utils/ajax.ts'
 import * as ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 

@@ -2,7 +2,7 @@
   <div class="home">
     <!-- 头部按钮 -->
     <div class="homeTop">
-      <input type="text" v-model="Search">
+      <input type="text" placeholder="请输入筛选金额" v-model="Search">
       <button @click='changeState' v-if="state == 1">开始采集</button>
       <button @click='changeState' v-if="state == 0" class='redButton'>结束采集</button>
     </div>
@@ -19,7 +19,7 @@
         <span>关注</span>
       </p>
       <ul>
-        <li v-for="item in List" :key="item.id" :class="{fontRed:item.zhiding == 2}">
+        <li v-for="item,index in List" :key="index" :class="{fontRed:item.zhiding == 2}">
           <span>{{item.startTime}}</span>
           <span>{{item.gameId}}</span>
           <span>{{item.gameName}}</span>
@@ -38,6 +38,7 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 // import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 import axios from '@/utils/request.ts';
+import ajax from '@/utils/ajax.ts';
 // import axios from '@/plugin/https.ts';
 @Component({
   // components: {
@@ -57,6 +58,11 @@ export default class extends Vue {
       
     }
 
+    destroyed(){
+      clearInterval(this.timerEned)
+      clearInterval(this.timer)
+    }
+
     mounted () {
 
       axios.post("api/status").then(res => {
@@ -64,19 +70,19 @@ export default class extends Vue {
         if(res.code == '200'){
 
           this.state = res.data.statusId
-          if(res.data.statusId == '1' && res.data.status == 'false'){
+          if(res.data.statusId == '1' && res.data.status == '1'){
 
             // this.init()
-            // this.state = 1
+            this.state = 1
             //等待开启
 
           }else{
             // 开启了,开启定时器，进行持续查询
-            // this.state = 0
+            this.state = 0
             // this.init()
-            // this.timer = setInterval(()=>{
-            //   this.init()
-            // },1100)
+            this.timer = setInterval(()=>{
+              this.init()
+            },1100)
 
           }
 
@@ -85,29 +91,29 @@ export default class extends Vue {
 
       // 最新关注的提示
       // this.timerEned = setInterval(()=>{
-      //     axios.post("api/status").then(res => {
-      //     // console.log(res)
-      //     if(res.code == '200'){
+      //     ajax.post("test/updateXiaoxi").then(data => {
+      //     // console.log(data)
+      //     // http://47.101.199.116:80/test/updateXiaoxi
+      //     if(data.length >= 1){
       //       this.playSound()
-      //       this.state = res.data.statusId
-      //       if(res.data.statusId == '1'){
-      //         // 有消息
-      //         this.playSound()
-      //       }else{
-      //         clearInterval(this.timerEned)
-      //       }
+      //     }else{
+      //       clearInterval(this.timerEned)
       //     }
       //   })
       // },5000)
+
     }
 
     init(){
+      // console.log("111")
       // 查询是否在30秒内
-      axios.post("api/status").then(res => {
+      axios.post("api/Endstatus").then(res => {
         // console.log(res)
         if(res.code == '200'){
-          if(res.data.statusId == '1'){
+          if(res.data.status == '1'){
             // 不再30秒内
+            this.List = []
+            console.log("不在30秒")
             this.flag = false;
           }else{
             if(this.flag == false){
@@ -120,7 +126,20 @@ export default class extends Vue {
             }).then(res => {
               // console.log(res)
               if(res.code == '200'){
-                this.List = this.List.concat(res.data);
+                // let arr = []
+                let number = this.Search
+                if(number == null || number == ''){
+                  number = 0
+                }
+                res.data.forEach(it => {
+                  if(parseInt(it.statusSun) >= number){
+                    // arr.push(it)
+                    this.List.unshift(it)
+                  }
+                })
+                console.log(this.List)
+                // this.List = arr.concat(this.List);
+                // this.List = this.List.reverse()
               }
             })
           }
@@ -227,7 +246,7 @@ export default class extends Vue {
       if ( borswer.indexOf( "ie" ) >= 0 )
       {
         //IE内核浏览器
-        var strEmbed = '<embed name="embedPlay" src="https://img.tukuppt.com/newpreview_music/08/99/16/5c88e76d71b5711967.mp3" autostart="true" hidden="true" loop="false"></embed>';
+        var strEmbed = '<embed name="embedPlay" src="http://139.196.137.208:4000/ding.mp3" autostart="true" hidden="true" loop="false"></embed>';
         if ( $( "body" ).find( "embed" ).length <= 0 )
           $( "body" ).append( strEmbed );
         var embed = document.embedPlay;
@@ -238,7 +257,7 @@ export default class extends Vue {
       } else
       {
         //非IE内核浏览器
-        var strAudio = "<audio id='audioPlay' src='https://img.tukuppt.com/newpreview_music/08/99/16/5c88e76d71b5711967.mp3' hidden='true'>";
+        var strAudio = "<audio id='audioPlay' src='http://139.196.137.208:4000/ding.mp3' hidden='true'>";
         if ( $( "body" ).find( "audio" ).length <= 0 )
           $( "body" ).append( strAudio );
         var audio = document.getElementById( "audioPlay" );

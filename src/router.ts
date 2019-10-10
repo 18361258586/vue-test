@@ -49,11 +49,18 @@ router.beforeEach((to, from, next) => {
   
   let xtoken = localStorage.getItem("token")
   if(xtoken){
-      next();
+      
+      if(to.path == '/login'){
+        next({ path: '/home',replace: true })
+      }else{
+        next();
+      }
   }else if(to.path != '/login'){
       next({ path: '/login',replace: true })
+  }else if(to.path == '/login'){
+    next({ path: '/login',replace: true })
   }else{
-      next()
+    next()
   }
   
 });
