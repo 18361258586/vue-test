@@ -151,10 +151,11 @@ export default class extends Vue {
   .searchTop{
     padding: 22px;
     height: 42px;
-    text-align: left;
+    // text-align: left;
     display: flex;
     align-items: center;
     input{
+      float: left;
       padding: 0 10px;
       width: 175px;
       height: 42px;

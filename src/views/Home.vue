@@ -2,6 +2,7 @@
   <div class="home">
     <!-- 头部按钮 -->
     <div class="homeTop">
+      <input type="text" v-model="Search">
       <button @click='changeState' v-if="state == 1">开始采集</button>
       <button @click='changeState' v-if="state == 0" class='redButton'>结束采集</button>
     </div>
@@ -18,7 +19,7 @@
         <span>关注</span>
       </p>
       <ul>
-        <li v-for="item in data" :key="item.id" :class="{fontRed:item.zhiding == 2}">
+        <li v-for="item in List" :key="item.id" :class="{fontRed:item.zhiding == 2}">
           <span>{{item.startTime}}</span>
           <span>{{item.gameId}}</span>
           <span>{{item.gameName}}</span>
@@ -45,11 +46,12 @@ import axios from '@/utils/request.ts';
 })
 export default class extends Vue {
     
+    private Search =  null;
     private state = 1 // 状态
-    private List = null  // 列表
-    private data = []
+    private List = []  // 列表
     private timer = null
     private timerEned = null
+    private flag = false
 
     created(){
       
@@ -60,52 +62,71 @@ export default class extends Vue {
       axios.post("api/status").then(res => {
         // console.log(res)
         if(res.code == '200'){
+
           this.state = res.data.statusId
           if(res.data.statusId == '1' && res.data.status == 'false'){
-            this.init()
-            this.state = 1
-          }else{
-            this.state = 0
-            this.init()
-            this.timer = setInterval(()=>{
-              this.init()
-            },1500)
 
-            this.timerEned = setInterval(()=>{
-                axios.post("api/status").then(res => {
-                // console.log(res)
-                if(res.code == '200'){
-                  this.playSound()
-                  this.state = res.data.statusId
-                  if(res.data.statusId == '1' && res.data.status == 'false'){
-                    // 未开始采集
-                    this.state = 1;
-                    clearInterval(this.timer)
-                    clearInterval(this.timerEned)
-                    this.$message({
-                      showClose: true,
-                      message: '窗口异常关闭',
-                      type: 'error'
-                    });
-                  }
-                }
-              })
-            },5000)
+            // this.init()
+            // this.state = 1
+            //等待开启
+
+          }else{
+            // 开启了,开启定时器，进行持续查询
+            // this.state = 0
+            // this.init()
+            // this.timer = setInterval(()=>{
+            //   this.init()
+            // },1100)
+
           }
+
         }
       })
 
-      // this.init()
+      // 最新关注的提示
+      // this.timerEned = setInterval(()=>{
+      //     axios.post("api/status").then(res => {
+      //     // console.log(res)
+      //     if(res.code == '200'){
+      //       this.playSound()
+      //       this.state = res.data.statusId
+      //       if(res.data.statusId == '1'){
+      //         // 有消息
+      //         this.playSound()
+      //       }else{
+      //         clearInterval(this.timerEned)
+      //       }
+      //     }
+      //   })
+      // },5000)
     }
 
     init(){
-        this.List = null;
-        axios.post("api/now").then(res => {
-          // console.log(res)
-          if(res.code == '200'){
-            this.data = res.data;
+      // 查询是否在30秒内
+      axios.post("api/status").then(res => {
+        // console.log(res)
+        if(res.code == '200'){
+          if(res.data.statusId == '1'){
+            // 不再30秒内
+            this.flag = false;
+          }else{
+            if(this.flag == false){
+              this.List = []
+              this.flag = true;
+            }
+            // 在
+            axios.post("api/now",{
+              minNumber:this.Search
+            }).then(res => {
+              // console.log(res)
+              if(res.code == '200'){
+                this.List = this.List.concat(res.data);
+              }
+            })
           }
-        })
+
+        }
+      })
         // console.log("111")
     }
 
@@ -233,6 +254,34 @@ export default class extends Vue {
 .homeTop{
   padding: 22px 60px;
   height: 42px;
+  display: flex;
+  justify-content: space-between;
+  input{
+    padding: 0 10px;
+    width: 175px;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+    border: 0;
+    outline: none;
+    color: white;
+    border-radius: 5px;
+    background-color: rgb(204, 204, 204);
+  }
+  input::-webkit-input-placeholder {
+    /* placeholder颜色  */
+    color: white;
+    /* placeholder字体大小  */
+    font-size: 16px;
+    /* placeholder位置  */
+    // text-align: right;
+  }
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
   button{
     width: 175px;
     height: 42px;
