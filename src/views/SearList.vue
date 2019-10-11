@@ -200,6 +200,10 @@ export default class extends Vue {
     span{
       display: inline-block;
       width: calc(100% / 7);
+          font-size: 12px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
     }
     span:last-child{
       cursor: pointer;

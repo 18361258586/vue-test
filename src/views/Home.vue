@@ -64,7 +64,7 @@ export default class extends Vue {
     }
 
     mounted () {
-
+      
       axios.post("api/status").then(res => {
         // console.log(res)
         if(res.code == '200'){
@@ -90,22 +90,21 @@ export default class extends Vue {
       })
 
       // 最新关注的提示
-      // this.timerEned = setInterval(()=>{
-      //     ajax.post("test/updateXiaoxi").then(data => {
-      //     // console.log(data)
-      //     // http://47.101.199.116:80/test/updateXiaoxi
-      //     if(data.length >= 1){
-      //       this.playSound()
-      //     }else{
-      //       clearInterval(this.timerEned)
-      //     }
-      //   })
-      // },5000)
+      this.timerEned = setInterval(()=>{
+          ajax.post("test/updateXiaoxi").then(data => {
+          // console.log(data)
+          // http://47.101.199.116:80/test/updateXiaoxi
+          if(data.length >= 1){
+            this.playSound()
+          }else{
+            clearInterval(this.timerEned)
+          }
+        })
+      },5000)
 
     }
 
     init(){
-      // console.log("111")
       // 查询是否在30秒内
       axios.post("api/Endstatus").then(res => {
         // console.log(res)
@@ -113,7 +112,7 @@ export default class extends Vue {
           if(res.data.status == '1'){
             // 不再30秒内
             this.List = []
-            console.log("不在30秒")
+            // console.log("不在30秒")
             this.flag = false;
           }else{
             if(this.flag == false){
@@ -131,13 +130,37 @@ export default class extends Vue {
                 if(number == null || number == ''){
                   number = 0
                 }
-                res.data.forEach(it => {
+                let arr1 = res.data.slice(0,7).reverse()
+                let arr2 = res.data.slice(7,14).reverse()
+                let arr3 = res.data.slice(14,20).reverse()
+                arr1.forEach(it => {
                   if(parseInt(it.statusSun) >= number){
                     // arr.push(it)
                     this.List.unshift(it)
                   }
                 })
-                console.log(this.List)
+                // console.log(this.List)
+                setTimeout(() => {
+                  arr2.forEach(it => {
+                    if(parseInt(it.statusSun) >= 0){
+                      // arr.push(it)
+                      this.List.unshift(it)
+                    }
+                  })
+                  // console.log(this.List)
+                }, 350);
+
+                setTimeout(() => {
+                  arr3.forEach(it => {
+                    if(parseInt(it.statusSun) >= 0){
+                      // arr.push(it)
+                      this.List.unshift(it)
+                    }
+                  })
+                  // console.log(this.List)
+                }, 700);
+                
+                // console.log(this.List)
                 // this.List = arr.concat(this.List);
                 // this.List = this.List.reverse()
               }
@@ -324,6 +347,10 @@ export default class extends Vue {
   span{
     display: inline-block;
     width: calc(100% / 7);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
   }
   span:last-child{
     cursor:pointer;
