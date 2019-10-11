@@ -139,20 +139,20 @@ export default class extends Vue {
                     this.List.unshift(it)
                   }
                 })
-                // console.log(this.List)
+                // console.log(this.List) 
                 setTimeout(() => {
                   arr2.forEach(it => {
-                    if(parseInt(it.statusSun) >= 0){
+                    if(parseInt(it.statusSun) >= number){
                       // arr.push(it)
                       this.List.unshift(it)
                     }
                   })
                   // console.log(this.List)
                 }, 350);
-
+                
                 setTimeout(() => {
                   arr3.forEach(it => {
-                    if(parseInt(it.statusSun) >= 0){
+                    if(parseInt(it.statusSun) >= number){
                       // arr.push(it)
                       this.List.unshift(it)
                     }
